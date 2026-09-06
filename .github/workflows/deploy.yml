@@ -38,7 +38,7 @@ jobs:
 
       - name: Build static site
         run: |
-          npm run build
+          npx vite build --base=/Terminal/
           touch dist/.nojekyll
           cp dist/index.html dist/404.html
 

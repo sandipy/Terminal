@@ -10,6 +10,12 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#090d16" />
+    <script>
+      // Ensure GitHub Pages has trailing slash so relative paths resolve cleanly
+      if (window.location.hostname.endsWith('github.io') && window.location.pathname === '/Terminal') {
+        window.location.replace('/Terminal/' + window.location.search + window.location.hash);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet" />

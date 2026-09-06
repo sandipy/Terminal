@@ -4,8 +4,11 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
+  const basePath = process.env.BASE_PATH || (isGithubActions ? '/Terminal/' : './');
+
   return {
-    base: './',
+    base: basePath,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
