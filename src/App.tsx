@@ -39,6 +39,7 @@ import {
   getAudioPref,
   setAudioPref
 } from './utils/offlineStorage';
+import { fetchLiveMarketDataClient } from './utils/liveMarketClient';
 import { WifiOff, ShieldAlert, Sparkles, RefreshCw, Layers } from 'lucide-react';
 
 export default function App() {
@@ -420,43 +421,30 @@ export default function App() {
     });
   };
 
-  // Sync Real Market Data & Live Rates from backend
+  // Sync Real Market Data & Live Rates from backend OR direct exchange APIs on GitHub Pages
   const handleSyncRealData = async (silent = false) => {
     setIsSyncing(true);
     try {
-      const [marketRes, calendarRes] = await Promise.allSettled([
-        fetch('/api/market/sync'),
-        fetch('/api/market/calendar')
-      ]);
+      // 1. Fetch live quotes via hybrid client (tries backend first, then direct CORS exchange APIs)
+      const clientResult = await fetchLiveMarketDataClient();
 
-      if (marketRes.status === 'fulfilled' && marketRes.value.ok) {
-        const data = await marketRes.value.json();
-        if (data.quotes) {
-          setWatchlist(prev => prev.map(asset => {
-            const quote = data.quotes[asset.symbol];
-            if (quote) {
-              return {
-                ...asset,
-                price: quote.price,
-                displayPrice: quote.displayPrice || (asset.category === 'commodity' ? `$${quote.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : quote.price.toFixed(4)),
-                change24h: quote.change24h,
-                changePercent: quote.changePercent,
-                high24h: quote.high24h ? (asset.category === 'commodity' || asset.category === 'indices' ? `$${quote.high24h}` : quote.high24h) : asset.high24h,
-                low24h: quote.low24h ? (asset.category === 'commodity' || asset.category === 'indices' ? `$${quote.low24h}` : quote.low24h) : asset.low24h,
-                sparkline: quote.sparkline && quote.sparkline.length > 0 ? quote.sparkline : asset.sparkline,
-              };
-            }
-            if (data.rates && data.rates[asset.symbol]) {
-              const syncedPrice = data.rates[asset.symbol];
-              return {
-                ...asset,
-                price: syncedPrice,
-                displayPrice: asset.category === 'commodity' ? `$${syncedPrice.toFixed(2)}` : syncedPrice.toFixed(4),
-              };
-            }
-            return asset;
-          }));
-        }
+      if (clientResult.quotes && Object.keys(clientResult.quotes).length > 0) {
+        setWatchlist(prev => prev.map(asset => {
+          const quote = clientResult.quotes[asset.symbol];
+          if (quote) {
+            return {
+              ...asset,
+              price: quote.price,
+              displayPrice: quote.displayPrice || (asset.category === 'commodity' ? `$${quote.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : quote.price.toFixed(4)),
+              change24h: quote.change24h !== undefined ? quote.change24h : asset.change24h,
+              changePercent: quote.changePercent !== undefined ? quote.changePercent : asset.changePercent,
+              high24h: quote.high24h || asset.high24h,
+              low24h: quote.low24h || asset.low24h,
+              sparkline: quote.sparkline && quote.sparkline.length > 0 ? quote.sparkline : asset.sparkline,
+            };
+          }
+          return asset;
+        }));
 
         const nowFormatted = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         setLastSyncTime(nowFormatted);
@@ -465,19 +453,27 @@ export default function App() {
         if (!silent) {
           addToast({
             type: 'price',
-            title: 'Live Macro Rates & Quotes Synced',
-            message: 'Institutional live feed refreshed across Gold, Oil, DXY, FX majors & Index Futures.',
-            badge: 'LIVE FEED',
+            title: clientResult.source === 'backend' ? 'Live Institutional Feed Synced' : 'Live Spot Exchange Rates Synced',
+            message: clientResult.source === 'backend' 
+              ? 'Institutional feed refreshed across Gold, Oil, DXY, FX & Futures.' 
+              : 'Direct exchange feed connected: Spot Gold & Live Central Bank FX Rates updated.',
+            badge: clientResult.source === 'backend' ? 'LIVE BACKEND' : 'LIVE EXCHANGE',
           });
         }
       }
 
-      if (calendarRes.status === 'fulfilled' && calendarRes.value.ok) {
-        const calData = await calendarRes.value.json();
-        if (calData.events && Array.isArray(calData.events) && calData.events.length > 0) {
-          setCalendarEvents(calData.events);
-          saveCachedEvents(calData.events);
+      // 2. Fetch calendar events if backend is present
+      try {
+        const calendarRes = await fetch('/api/market/calendar', { signal: AbortSignal.timeout(2500) });
+        if (calendarRes.ok) {
+          const calData = await calendarRes.json();
+          if (calData.events && Array.isArray(calData.events) && calData.events.length > 0) {
+            setCalendarEvents(calData.events);
+            saveCachedEvents(calData.events);
+          }
         }
+      } catch {
+        // Backend calendar optional on static pages
       }
     } catch (e) {
       console.error('Market sync error:', e);
