@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 17px;
+  }
+  
+  @media (min-width: 640px) {
+    html {
+      font-size: 17.5px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  *, *::before, *::after, body, button, input, select, textarea, code, pre, kbd, samp {
+    font-family: 'Raleway', sans-serif !important;
+  }
+
+  body {
+    font-family: 'Raleway', sans-serif !important;
+    letter-spacing: 0.015em;
+  }
+  
+  .font-raleway,
+  .font-sans,
+  .font-mono,
+  .font-serif {
+    font-family: 'Raleway', sans-serif !important;
+  }
+
+  code, pre, kbd, samp {
+    font-family: 'Raleway', sans-serif !important;
+  }
+
+  /* Sharp Terminal 2px corner aesthetic - NO PILLS ANYWHERE */
+  *, *::before, *::after {
+    border-radius: 2px !important;
+  }
+
+  [class*="rounded"] {
+    border-radius: 2px !important;
+  }
+
+  .rounded-full,
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-xl,
+  .rounded-lg,
+  .rounded-md,
+  .rounded-sm,
+  .rounded {
+    border-radius: 2px !important;
+  }
+
+  div, span, button, input, select, textarea, a, table, tr, th, td, section, header, nav, ul, li {
+    border-radius: 2px !important;
+  }
+}
+
+/* Custom scrollbars with sharp 2px corners */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 2px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
