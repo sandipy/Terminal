@@ -528,6 +528,8 @@ export default function App() {
         onToggleViewMode={() => setViewMode(prev => prev === 'cockpit' ? 'flow' : 'cockpit')}
         isSignalsOnly={isSignalsOnly}
         onToggleSignalsOnly={() => setIsSignalsOnly(prev => !prev)}
+        onSyncRealData={handleSyncRealData}
+        isSyncing={isSyncing}
       />
 
       {/* ONE-CLICK SIGNALS-ONLY RADAR VIEW (REMOVES ALL DETAILS, SHOWS ONLY HOT BUY/HOT SELL/BUY/SELL/NEUTRAL) */}

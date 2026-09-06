@@ -12,7 +12,8 @@ import {
   ShieldAlert,
   Flame,
   Download,
-  Maximize2
+  Maximize2,
+  RefreshCw
 } from 'lucide-react';
 import { soundEngine } from '../utils/audioAlert';
 import { requestNotificationPermission, sendBrowserPushNotification, getNotificationPermission } from '../utils/notifications';
@@ -31,6 +32,8 @@ interface HeaderProps {
   onToggleViewMode?: () => void;
   isSignalsOnly?: boolean;
   onToggleSignalsOnly?: () => void;
+  onSyncRealData?: () => void;
+  isSyncing?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -47,6 +50,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleViewMode,
   isSignalsOnly = false,
   onToggleSignalsOnly,
+  onSyncRealData,
+  isSyncing = false,
 }) => {
   const [notificationPerm, setNotificationPerm] = useState<string>('default');
   const [sessionTimes, setSessionTimes] = useState<{ [key: string]: boolean }>({
@@ -203,6 +208,26 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Maximize2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{viewMode === 'cockpit' ? 'Cockpit' : 'Flow'}</span>
+              </button>
+            )}
+
+            {/* Direct 1-Click Live Exchange & Market Sync Button */}
+            {onSyncRealData && (
+              <button
+                id="btn-header-sync"
+                onClick={onSyncRealData}
+                disabled={isSyncing}
+                className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-[2px] border font-black flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
+                  isSyncing
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50'
+                    : isDark
+                      ? 'border-cyan-500/50 bg-cyan-500/15 hover:bg-cyan-500/30 text-cyan-300 shadow-sm shadow-cyan-500/20 ring-1 ring-cyan-500/30'
+                      : 'border-cyan-500/60 bg-cyan-50 hover:bg-cyan-100 text-cyan-800'
+                }`}
+                title="Sync real-time spot Gold, Forex, and market rates from live exchange feeds"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
               </button>
             )}
 

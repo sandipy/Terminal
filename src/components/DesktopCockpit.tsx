@@ -241,15 +241,16 @@ export const DesktopCockpit: React.FC<DesktopCockpitProps> = ({
           </button>
 
           <button
+            id="btn-cockpit-sync"
             onClick={onSyncRealData}
             disabled={isSyncing}
-            className={`px-2 sm:px-2.5 py-1 rounded border flex items-center gap-1.5 text-[11px] font-bold transition cursor-pointer shrink-0 ${
-              isDark ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/25' : 'bg-cyan-50 border-cyan-300 text-cyan-700 hover:bg-cyan-100'
+            className={`px-2.5 py-1.5 rounded border flex items-center gap-1.5 text-xs font-bold transition cursor-pointer shrink-0 ${
+              isDark ? 'bg-cyan-500/20 border-cyan-400/60 text-cyan-300 hover:bg-cyan-500/30 ring-1 ring-cyan-500/30' : 'bg-cyan-50 border-cyan-400 text-cyan-800 hover:bg-cyan-100'
             }`}
+            title="Sync real-time spot Gold, Forex, and market quotes"
           >
-            <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Rates'}</span>
-            <span className="sm:hidden">{isSyncing ? '...' : 'Sync'}</span>
+            <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Syncing...' : 'Sync Rates'}</span>
           </button>
 
           {onToggleSignalsOnly && (
